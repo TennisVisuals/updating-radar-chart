@@ -463,7 +463,7 @@ function RadarChart() {
        // filter out axes
        var d_indices = axes.map(function(m, i) { return (options.axes.filter.indexOf(axes[i]) >= 0) ? i : undefined; }).reverse();
        _data.forEach( function(e) { 
-          d_indices.forEach(function(i) { if (i) e.values.splice(i, 1); });
+          d_indices.forEach(function(i) { if (i >= 0) e.values.splice(i, 1); });
        });
 
        // determine min/max range for each axis
