@@ -18,7 +18,7 @@ I figured out enter/exit/update for nested objects by studying Lee Mendelowitz's
  - e.g. external tooltips can be configured for mouseover events
 
 ###Accessors:
-// accessors with no parameters return current values
+accessors with no parameters return current values
 - chart.duration(transition-time) // duration of transitions
 - chart.options(object) // many options don't have accessors
 - chart.width(width)
@@ -34,14 +34,17 @@ I figured out enter/exit/update for nested objects by studying Lee Mendelowitz's
 - chart.events(object) -- chart.events({'legend': {'mouseover': null}})
 - chart.color(d3.scale)
 - chart.colors(object) -- chart.colors({'axis1': 'color1', 'axis2': 'color2'})
-- chart.keys() // return a list of data keys
-- chart.axes() // return labels of all axes
-- chart.nodes() // return svg object
+operations on data held in chart instance
 - chart.pop()
 - chart.push(row) -or- chart.push([row, row])
 - chart.shift()
 - chart.unshift(row) -or- chart.unshift([row, row])
 - chart.slice(begin, end)
+operations performed on data prior to display
 - chart.invert(axis) -or- chart.invert([axis, axis]) // index or "axis label"
 - chart.ranges({'axis': [min, max]}) 
 - chart.filter('key') -or- chart.filter(['key1', 'key2'])
+convenience
+- chart.keys() // return a list of data keys
+- chart.axes() // return labels of all axes
+- chart.nodes() // return svg object
