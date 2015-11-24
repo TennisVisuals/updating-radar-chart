@@ -7,7 +7,7 @@
 ###Coding philosophy inspired by:
 - http://www.toptal.com/d3-js/towards-reusable-d3-js-charts
 
-###I figured out enter/exit/update for nested objects by studying Lee Mendelowitz's block and reviewing Mike's comments
+I figured out enter/exit/update for nested objects by studying Lee Mendelowitz's block and reviewing Mike's comments
 - http://bl.ocks.org/LeeMendelowitz/11383724
 - https://groups.google.com/forum/#!topic/d3-js/5AxgsKK31EA
 
@@ -48,6 +48,6 @@
 - chart.unshift(row) -or- chart.unshift([row, row])
 - chart.slice(begin, end)
 
-chart.invert(axis) -or- chart.invert([axis, axis]) // index or "axis label"
-chart.ranges({'axis': [min, max]}) 
-chart.filter('key') -or- chart.filter(['key1', 'key2'])
+- chart.invert(axis) -or- chart.invert([axis, axis]) // index or "axis label"
+- chart.ranges({'axis': [min, max]}) 
+- chart.filter('key') -or- chart.filter(['key1', 'key2'])
