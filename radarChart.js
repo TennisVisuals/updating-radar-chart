@@ -806,47 +806,6 @@ function RadarChart() {
        modifyList(options.axes.invert, values);
        return chart;
     }
-/*
-       var axes = getAxisLabels(data);
-
-       if ( values.constructor === Array ) {
-          values.forEach(function(e) { checkType(e); });
-       } else if (typeof values != "object") {
-          checkType(values);
-       } else {
-          return chart;
-       }
-
-       function checkType(v) {
-          if (!isNaN(v) && (function(x) { return (x | 0) === x; })(parseFloat(v))) {
-             checkValue(parseInt(v));
-          } else if (typeof v == "string") {
-             checkValue(v);
-          }
-       }
-
-       function checkValue(val) {
-          if ( axes.indexOf(val) >= 0 ) {
-             invert(val);
-          } else if ( val >= 0 && val < axes.length ) {
-             invert(axes[val]);
-          }
-       }
-
-       function invert(index) {
-          if (options.axes.invert.indexOf(index) >= 0) {
-             remove(options.axes.invert, index);
-          } else {
-             options.axes.invert.push(index);
-          }
-       }
-
-       function remove(arr, item) {
-         for (var i = arr.length; i--;) { if (arr[i] === item) { arr.splice(i, 1); } }
-       }
-
-       return chart;
-    }*/
 
     // add or remove ranges for keys
     chart.ranges = function(values) {
