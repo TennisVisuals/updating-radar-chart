@@ -5,12 +5,15 @@ function RadarChart() {
    // slider to change maxValue on the fly
    // filter update make sure there is an element with URL
    //
+   // show axis tics/legend when hover over axis label or data point
+   //
+   // popup div/panel for selecting axes to display and ranges and whether to invert
    
    // options which should be accessible via ACCESSORS
    var data = [];
-   var _data = [];
    var options = {
-      filter: 'glow',        // define your own filter; false = no filter;
+      filter: 'rc_glow',            // define your own filter; false = no filter;
+      filter_id: 'rc_glow',         // assign unique name for default filter
 
       width: window.innerWidth,
 	   height: window.innerHeight,
@@ -43,12 +46,15 @@ function RadarChart() {
       },
 
       axes: {
+         display: true,
          lineColor: "white",
          lineWidth: "2px",
+         fontWidth: "11px",
+         fontColor: "black",
          wrapWidth: 60,	      // The number of pixels after which a label needs to be given a new line
          filter: [],
          invert: [],
-         ranges: {"Large Screen": [0, 1]}           // { axisname: [min, max], axisname: [min, max]  }
+         ranges: {}           // { axisname: [min, max], axisname: [min, max]  }
       },
 
       legend: {
@@ -57,6 +63,8 @@ function RadarChart() {
          toggle: 'circle',
          position: { x: 25, y: 25 }
       },
+
+      class: "rc_",
 
       color: d3.scale.category10()	   //Color function
    }
@@ -88,6 +96,7 @@ function RadarChart() {
    var tooltip;
 
    // programmatic
+   var _data = [];
    var radial_calcs = {};
    var Format = d3.format('%'); // Percentage formatting
    var transition_time = 0;
@@ -106,21 +115,20 @@ function RadarChart() {
 
             //////////// Create the container SVG and children g /////////////
             var svg = dom.append('svg')
-                .attr('class', 'svg-class')
                 .attr('width', options.width)
                 .attr('height', options.height);
 
             // append parent g for chart
-            chart_node = svg.append('g').attr('class', 'radar_node');
-            hover_node = svg.append('g').attr('class', 'hover_node');
-            tooltip_node = svg.append('g').attr('class', 'tooltip_node');
-            legend_node = svg.append("g").attr("class", "legendOrdinal");
+            chart_node = svg.append('g').attr('class', options.class + 'radar_node');
+            hover_node = svg.append('g').attr('class', options.class + 'hover_node');
+            tooltip_node = svg.append('g').attr('class', options.class + 'tooltip_node');
+            legend_node = svg.append("g").attr("class", options.class + "legend");
 
             // Wrapper for the grid & axes
             var axisGrid = chart_node.append("g").attr("class", "axisWrapper");
 
             ////////// Glow filter for some extra pizzazz ///////////
-            var filter = chart_node.append('defs').append('filter').attr('id','glow'),
+            var filter = chart_node.append('defs').append('filter').attr('id', options.filter_id),
                feGaussianBlur = filter.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','coloredBlur'),
                feMerge = filter.append('feMerge'),
                feMergeNode_1 = feMerge.append('feMergeNode').attr('in','coloredBlur'),
@@ -128,7 +136,7 @@ function RadarChart() {
 
             // Set up the small tooltip for when you hover over a circle
             tooltip = tooltip_node.append("text")
-               .attr("class", "tooltip")
+               .attr("class", options.class + 'tooltip')
                .style("opacity", 0);
            
             // update
@@ -276,7 +284,7 @@ function RadarChart() {
                 update_axis_legends.enter()
                     .append("text")
                     .attr("class", "axis_legend")
-                    .style("font-size", "11px")
+                    .style("font-size", options.axes.fontWidth)
                     .attr("text-anchor", "middle")
                     .attr("dy", "0.35em")
                     .attr("x", function(d, i, j) { return calcX(null, options.circles.labelFactor, j); })
@@ -395,8 +403,8 @@ function RadarChart() {
                 var update_blobCircleWrapper = hover_node.selectAll(".radarCircleWrapper")
                    .data(_data, get_key)
 
-                update_blobCircleWrapper
-                   .enter().append("g")
+                update_blobCircleWrapper.enter()
+                   .append("g")
                    .attr("class", "radarCircleWrapper")
                    .attr("key", function(d) { return d.key; });
 
@@ -656,10 +664,6 @@ function RadarChart() {
        return chart;
     }
 
-    chart.updateDimensions = function() {
-        if (typeof updateDimensions === 'function') updateDimensions(transition_time);
-    }
-
     chart.update = function() {
         if (events.update.begin) events.update.begin(_data); 
         if (typeof updateData === 'function') updateData();
@@ -675,7 +679,9 @@ function RadarChart() {
     };
 
     chart.pop = function() {
-        return data.pop();
+        var row = data.pop()
+        if (typeof updateData === 'function') updateData();
+        return row;
     };
 
     chart.push = function(row) {
@@ -697,7 +703,9 @@ function RadarChart() {
     };
 
     chart.shift = function() {
-        return data.shift();
+        var row = data.shift();
+        if (typeof updateData === 'function') updateData();
+        return row;
     };
 
     chart.unshift = function(row) {
@@ -935,7 +943,7 @@ function RadarChart() {
          newY =  parseFloat(d3.select(self).attr('cy')) - 10;
             
          tooltip
-           .attr('x', newX)
+          .attr('x', newX)
           .attr('y', newY)
           .text(value)
           .transition().duration(200)
