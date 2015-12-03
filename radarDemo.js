@@ -108,9 +108,9 @@
    }, 48000);
 
    setTimeout(function() { 
-      operation.html(" radarChart.options({circles: {fill: '#CDCDCD', color: '#CDCDCD'}}); <br> radarChart.options({axes: {lineColor: 'white'}}); <br> radarChart.colors({}).data(data).update(); <br> radarChart.maxValue(.5).levels(7).filterAxes(7);");
+      operation.html(" radarChart.options({circles: {fill: '#CDCDCD', color: '#CDCDCD'}}); <br> radarChart.options({filter: 'rc_glow'}); <br> radarChart.colors({}).data(data).update(); <br> radarChart.maxValue(.5).levels(7).filterAxes(7);");
       radarChart.options({circles: {fill: '#CDCDCD', color: '#CDCDCD'}});
-      radarChart.options({axes: {lineColor: 'white'}, filter: 'glow'});
+      radarChart.options({filter: 'rc_glow'});
       radarChart.maxValue(.5).levels(7).filterAxes(7);
       radarChart.colors({}).data(data).update();
    }, 52000);
