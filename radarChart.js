@@ -8,6 +8,8 @@ function RadarChart() {
    // filter update make sure there is an element with URL
    //
    // show axis tics/legend when hover over axis label or data point
+   // set threshold for axis legends so they 'disappaar' when radar shrinks
+   // add abstract axis legend hover area... 'eyebrows' or 'dots'
    //
    // popup div/panel for selecting axes to display and ranges and whether to invert
    
@@ -43,7 +45,7 @@ function RadarChart() {
          borderWidth: 2,
          rounded: true,
          dotRadius: 4,
-         sort: true,          // sort layers by approximation of size, smallest on top
+         sort: false,          // sort layers by approximation of size, smallest on top
          filter: []
       },
 
@@ -929,10 +931,9 @@ function RadarChart() {
          modifyList(options.areas.filter, keys[d], keys);
          updateData();
          var state = d3.select(self).select('path').attr('toggle');
-         if (state == 'true') {
-            var shape = d3.svg.symbol().type(options.legend.symbol).size(150)()
-         } else {
-            var shape = d3.svg.symbol().type(options.legend.toggle).size(150)()
+         var shape = d3.svg.symbol().type(options.legend.symbol).size(150)()
+         if (state == 'false') {
+            // var shape = d3.svg.symbol().type(options.legend.toggle).size(150)()
          }
          d3.select(self).select('path')
                         .attr('toggle', state == 'true' ? 'false' : 'true' )
