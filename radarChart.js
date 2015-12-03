@@ -330,6 +330,11 @@ function RadarChart() {
                    .style('opacity', 0)
                    .remove()
 
+                update_blobWrapper
+                   .style("fill-opacity", function(d, i) { 
+                      return options.areas.filter.indexOf(d.key) >= 0 ? 0 : options.areas.opacity;
+                   })
+
                 var update_radarArea = update_blobWrapper.selectAll('.' + options.class + 'RadarArea')
                    .data(function(d) { return [d]; }, get_key);
 
@@ -377,19 +382,19 @@ function RadarChart() {
                    });
 
                 update_radarCircle = update_blobWrapper.selectAll('.' + options.class + 'RadarCircle')
-                   .data(function(d, i) { return add_index(d._i, d.values); });
+                   .data(function(d, i) { return add_index(d._i, d.key, d.values) });
 
                 update_radarCircle.enter()
                    .append("circle")
                    .attr("class", options.class + "RadarCircle")
                    .attr("r", options.areas.dotRadius)
-                   .attr("cx", function(d, i){ return calcX(0, 0, i); })
-                   .attr("cy", function(d, i){ return calcY(0, 0, i); })
+                   .attr("cx", function(d, i, j){ return calcX(0, 0, i); })
+                   .attr("cy", function(d, i, j){ return calcY(0, 0, i); })
                    .style("fill", function(d, i, j) { return setColor(d, d._i, _data[j].key); })
                    .style("fill-opacity", function(d, i) { return 0; })
                    .transition().duration(duration)
-                   .attr("cx", function(d, i){ return calcX(d.value, 0, i); })
-                   .attr("cy", function(d, i){ return calcY(d.value, 0, i); })
+                   .attr("cx", function(d, i, j){ return calcX(d.value, 0, i); })
+                   .attr("cy", function(d, i, j){ return calcY(d.value, 0, i); })
 
                 update_radarCircle.exit().remove();
 
@@ -397,7 +402,7 @@ function RadarChart() {
                    .transition().duration(duration)
                    .style("fill", function(d, i, j) { return setColor(d, d._i, _data[j].key); })
                    .style("fill-opacity", function(d, i, j) { 
-                      var key = data.map(function(m) {return m.key})[j];
+                      var key = _data.map(function(m) {return m.key})[j];
                       return options.areas.filter.indexOf(key) >= 0 ? 0 : 0.8; 
                    })
                    .attr("r", options.areas.dotRadius)
@@ -418,7 +423,7 @@ function RadarChart() {
                    .remove()
 
                 update_radarInvisibleCircle = update_blobCircleWrapper.selectAll("." + options.class + "RadarInvisibleCircle")
-                   .data(function(d, i) { return add_index(d._i, d.values); });
+                   .data(function(d, i) { return add_index(d._i, d.key, d.values); });
 
                 update_radarInvisibleCircle.enter()
                    .append("circle")
@@ -487,12 +492,6 @@ function RadarChart() {
        var axes = getAxisLabels(_data);
        var ranges = {};
 
-       // filter out axes
-       var d_indices = axes.map(function(m, i) { return (options.axes.filter.indexOf(axes[i]) >= 0) ? i : undefined; }).reverse();
-       _data.forEach( function(e) { 
-          d_indices.forEach(function(i) { if (i >= 0) e.values.splice(i, 1); });
-       });
-
        // determine min/max range for each axis
        _data.forEach( function(e) { e.values.forEach (function(d, i) { 
           var range = ranges[axes[i]] ?                        // already started?
@@ -524,6 +523,12 @@ function RadarChart() {
                   return b - a;
                })
                : _data;
+
+       // filter out axes
+       var d_indices = axes.map(function(m, i) { return (options.axes.filter.indexOf(axes[i]) >= 0) ? i : undefined; }).reverse();
+       _data.forEach( function(e) { 
+          d_indices.forEach(function(i) { if (i >= 0) e.values.splice(i, 1); });
+       });
 
        var color_indices = (function(a,b){while(a--)b[a]=a;return b})(10,[]);
        var indices = _data.map(function (i) { return i._i });
@@ -927,7 +932,7 @@ function RadarChart() {
 	}
 
    function legendClick(d, i, self) {
-         var keys = data.map(function(m) {return m.key});
+         var keys = _data.map(function(m) {return m.key});
          modifyList(options.areas.filter, keys[d], keys);
          updateData();
          var state = d3.select(self).select('path').attr('toggle');
@@ -962,9 +967,10 @@ function RadarChart() {
 	// Helper Functions
    // ----------------
 
-   function add_index(key, values) {
+   function add_index(index, key, values) {
       for (var v=0; v<values.length; v++) {
-         values[v]['_i'] = key;
+         values[v]['_i'] = index;
+         values[v]['key'] = key;
       }
       return values;
    }
