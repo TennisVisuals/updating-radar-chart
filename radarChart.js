@@ -884,11 +884,11 @@ function RadarChart() {
    // --------------
    function areaMouseover(d, i, self) {
       //Dim all blobs
-      d3.selectAll("." + options.class + "RadarArea")
+      chart_node.selectAll("." + options.class + "RadarArea")
          .transition().duration(200)
 			.style("fill-opacity", function(d, i, j) {
             return options.areas.filter.indexOf(d.key) >= 0 ? 0 : 0.1;
-          }); 
+          }) 
       //Bring back the hovered over blob
       d3.select(self)
          .transition().duration(200)
@@ -899,7 +899,7 @@ function RadarChart() {
 
    function areaMouseout(d, i, self) {
       //Bring back all blobs
-      d3.selectAll("." + options.class + "RadarArea")
+      chart_node.selectAll("." + options.class + "RadarArea")
          .transition().duration(200)
          .style("fill-opacity", function(d, i, j) {
             return options.areas.filter.indexOf(d.key) >= 0 ? 0 : options.areas.opacity;
@@ -911,13 +911,13 @@ function RadarChart() {
          var area = keys.indexOf(d) >= 0 ? d : keyScale(d); 
 
 			//Dim all blobs
-			d3.selectAll("." + options.class + "RadarArea")
+			chart_node.selectAll("." + options.class + "RadarArea")
 				.transition().duration(200)
 				.style("fill-opacity", function(d, i, j) {
                return options.areas.filter.indexOf(d.key) >= 0 ? 0 : 0.1;
             }); 
 			//Bring back the hovered over blob
-         d3.selectAll("." + options.class + "RadarArea." + area.replace(/\s+/g, ''))
+         chart_node.selectAll("." + options.class + "RadarArea." + area.replace(/\s+/g, ''))
 				.transition().duration(200)
 				.style("fill-opacity", function(d, i, j) {
                return options.areas.filter.indexOf(d.key) >= 0 ? 0 : 0.7;
