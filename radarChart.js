@@ -8,7 +8,6 @@ function RadarChart() {
    // filter update make sure there is an element with URL
    //
    // show axis tics/legend when hover over axis label or data point
-   // set threshold for axis legends so they 'disappaar' when radar shrinks
    // add abstract axis legend hover area... 'eyebrows' or 'dots'
    //
    // popup div/panel for selecting axes to display and ranges and whether to invert
@@ -19,8 +18,14 @@ function RadarChart() {
       filter: 'rcGlow' + uuid,            // define your own filter; false = no filter;
       filter_id: 'rcGlow' + uuid,         // assign unique name for default filter
 
+      resize: false,
+
       width: window.innerWidth,
+      widthMax: window.innerWidth,
+
 	   height: window.innerHeight,
+      heightMax: window.innerHeight,
+
       minRadius: 80,
 
       // Margins for the SVG
@@ -111,6 +116,7 @@ function RadarChart() {
    var keys;
    var keyScale;
    var colorScale;
+   var dom_parent;
 
    function chart(selection) {
         selection.each(function () {
@@ -118,10 +124,11 @@ function RadarChart() {
             dataCalcs();
             radialCalcs();
 
-            var dom = d3.select(this);
+            dom_parent = d3.select(this);
+            scaleChart();
 
             //////////// Create the container SVG and children g /////////////
-            var svg = dom.append('svg')
+            var svg = dom_parent.append('svg')
                 .attr('width', options.width)
                 .attr('height', options.height);
 
@@ -148,6 +155,7 @@ function RadarChart() {
            
             // update
             update = function() {
+
                 var duration = transition_time;
 
                 dataCalcs();
@@ -675,13 +683,23 @@ function RadarChart() {
 
     chart.width = function(value) {
         if (!arguments.length) return options.width;
-        options.width = value;
+        if (options.resize) {
+           options.widthMax = value;
+        } else {
+           options.width = value;
+        }
+        scaleChart();
         return chart;
     };
 
     chart.height = function(value) {
         if (!arguments.length) return options.height;
-        options.height = value;
+        if (options.resize) {
+           options.heightMax = value;
+        } else {
+           options.height = value;
+        }
+        scaleChart();
         return chart;
     };
 
@@ -1029,7 +1047,23 @@ function RadarChart() {
 	  });
 	}
 
+   window.addEventListener( 'resize', scaleChart, false );
+
+   function scaleChart() {
+      if (!options.resize) return;
+      var width_offset = dom_parent.node().getBoundingClientRect().left;
+      var height_offset = dom_parent.node().getBoundingClientRect().top;
+      if (matchRadar && typeof matchRadar.width === 'function') {
+         var width = Math.min(options.widthMax, document.documentElement.clientWidth - width_offset);
+         var height = Math.min(options.heightMax, document.documentElement.clientHeight - height_offset);
+         options.height = height;
+         options.width = width;
+         chart.update();
+      }
+   }
+
    return chart;
+
 }
 
 var UUID = (function() {
