@@ -45,7 +45,7 @@ function RadarChart() {
          borderWidth: 2,
          rounded: true,
          dotRadius: 4,
-         sort: false,          // sort layers by approximation of size, smallest on top
+         sort: true,          // sort layers by approximation of size, smallest on top
          filter: []
       },
 
@@ -101,6 +101,7 @@ function RadarChart() {
 
    // programmatic
    var _data = [];
+   var legend_toggles = [];
    var radial_calcs = {};
    var Format = d3.format('%'); // Percentage formatting
    var transition_time = 0;
@@ -448,8 +449,6 @@ function RadarChart() {
 
                 if (options.legend.display) {
                    var shape = d3.svg.symbol().type(options.legend.symbol).size(150)();
-                   var foo;
-                   legend_node.selectAll('cell').remove();
                    var colorScale = d3.scale.ordinal()
                       .domain(_data.map(function(m) { return m._i; }))
                       .range(_data.map(function(m) { return setColor(m); }));
@@ -472,6 +471,18 @@ function RadarChart() {
     
                       legend_node
                         .call(legendOrdinal);
+
+                      legend_node.selectAll('.cell')
+                        .attr('gen', function(d, i) { 
+                           if (legend_toggles[d] == true) {
+                              var shape = d3.svg.symbol().type(options.legend.toggle).size(150)()
+                           } else {
+                              var shape = d3.svg.symbol().type(options.legend.symbol).size(150)()
+                           }
+                           d3.select(this).select('path').attr('d', function() { return shape; });
+                           return legend_toggles[d];
+                        });
+
                    }
                }
 
@@ -683,6 +694,7 @@ function RadarChart() {
 
     chart.data = function(value) {
         if (!arguments.length) return data;
+        legend_toggles = [];
         data = value;
         return chart;
     };
@@ -915,6 +927,7 @@ function RadarChart() {
 
    // on mouseover for the legend symbol
 	function legendMouseover(d, i, self) {
+         if (legend_toggles[d]) return;
          var area = keys.indexOf(d) >= 0 ? d : keyScale(d); 
 
 			//Dim all blobs
@@ -934,15 +947,8 @@ function RadarChart() {
    function legendClick(d, i, self) {
          var keys = _data.map(function(m) {return m.key});
          modifyList(options.areas.filter, keys[d], keys);
+         legend_toggles[d] = legend_toggles[d] ? false : true;
          updateData();
-         var state = d3.select(self).select('path').attr('toggle');
-         var shape = d3.svg.symbol().type(options.legend.symbol).size(150)()
-         if (state == 'false') {
-            // var shape = d3.svg.symbol().type(options.legend.toggle).size(150)()
-         }
-         d3.select(self).select('path')
-                        .attr('toggle', state == 'true' ? 'false' : 'true' )
-                        .attr('d', function(d, i) { return shape; });
    }
 
    function tooltip_show(d, i, self) {
