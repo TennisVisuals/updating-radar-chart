@@ -88,20 +88,20 @@ function RadarChart() {
       'axisLabel': { 'mouseover': null, 'mouseout': null, 'mouseclick': null },
       'line': { 'mouseover': null, 'mouseout': null, 'mouseclick': null },
       'legend': { 'mouseover': legendMouseover, 'mouseout': areaMouseout, 'mouseclick': legendClick },
-      'axis_legend': { 'mouseover': null, 'mouseout': null, 'mouseclick': null },
+      'axisLegend': { 'mouseover': null, 'mouseout': null, 'mouseclick': null },
       'radarArea': { 'mouseover': areaMouseover, 'mouseout': areaMouseout, 'mouseclick': null },
       'radarInvisibleCircle': { 'mouseover': tooltip_show, 'mouseout': tooltip_hide, 'mouseclick': null }
    };
 
    // functions which should be accessible via ACCESSORS
-   var updateData;
+   var update;
 
    // helper functions
    var tooltip;
 
    // programmatic
    var _data = [];
-   var legend_toggles = [];
+   legend_toggles = [];
    var radial_calcs = {};
    var Format = d3.format('%'); // Percentage formatting
    var transition_time = 0;
@@ -145,7 +145,7 @@ function RadarChart() {
                .style("opacity", 0);
            
             // update
-            updateData = function() {
+            update = function() {
                 var duration = transition_time;
 
                 dataCalcs();
@@ -294,8 +294,8 @@ function RadarChart() {
                     .attr("dy", "0.35em")
                     .attr("x", function(d, i, j) { return calcX(null, options.circles.labelFactor, j); })
                     .attr("y", function(d, i, j) { return calcY(null, options.circles.labelFactor, j); })
-                    .on('mouseover', function(d, i, j) { if (events.axis_legend.mouseover) events.axis_legend.mouseover(d, i, j); })
-                    .on('mouseout', function(d, i, j) { if (events.axis_legend.mouseout) events.axis_legend.mouseout(d, i, j); })
+                    .on('mouseover', function(d, i, j) { if (events.axisLegend.mouseover) events.axisLegend.mouseover(d, i, j); })
+                    .on('mouseout', function(d, i, j) { if (events.axisLegend.mouseout) events.axisLegend.mouseout(d, i, j); })
                     .call(wrap, options.axes.wrapWidth)
 
                 update_axis_legends.exit()
@@ -686,7 +686,7 @@ function RadarChart() {
 
     chart.update = function() {
         if (events.update.begin) events.update.begin(_data); 
-        if (typeof updateData === 'function') updateData();
+        if (typeof update === 'function') update();
          setTimeout(function() { 
            if (events.update.end) events.update.end(_data); 
          }, transition_time);
@@ -694,6 +694,10 @@ function RadarChart() {
 
     chart.data = function(value) {
         if (!arguments.length) return data;
+        if (legend_toggles.length) {
+           var keys = _data.map(function(m) {return m.key});
+           legend_toggles.forEach(function (e, i) { chart.filterAreas(keys[i]); })
+        }
         legend_toggles = [];
         data = value;
         return chart;
@@ -701,7 +705,7 @@ function RadarChart() {
 
     chart.pop = function() {
         var row = data.pop()
-        if (typeof updateData === 'function') updateData();
+        if (typeof update === 'function') update();
         return row;
     };
 
@@ -725,7 +729,7 @@ function RadarChart() {
 
     chart.shift = function() {
         var row = data.shift();
-        if (typeof updateData === 'function') updateData();
+        if (typeof update === 'function') update();
         return row;
     };
 
@@ -902,6 +906,7 @@ function RadarChart() {
    // DEFAULT EVENTS
    // --------------
    function areaMouseover(d, i, self) {
+      if (legend_toggles[d._i]) return;
       //Dim all blobs
       chart_node.selectAll("." + options.class + "RadarArea")
          .transition().duration(200)
@@ -948,10 +953,11 @@ function RadarChart() {
          var keys = _data.map(function(m) {return m.key});
          modifyList(options.areas.filter, keys[d], keys);
          legend_toggles[d] = legend_toggles[d] ? false : true;
-         updateData();
+         update();
    }
 
    function tooltip_show(d, i, self) {
+         if (legend_toggles[d._i]) return;
          var value = d.original_value ? d.original_value : Format(d.value);
          newX =  parseFloat(d3.select(self).attr('cx')) - 10;
          newY =  parseFloat(d3.select(self).attr('cy')) - 10;
