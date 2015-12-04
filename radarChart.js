@@ -21,6 +21,7 @@ function RadarChart() {
 
       width: window.innerWidth,
 	   height: window.innerHeight,
+      minRadius: 80,
 
       // Margins for the SVG
       margins: {
@@ -51,6 +52,7 @@ function RadarChart() {
 
       axes: {
          display: true,
+         threshold: 90,    // radius threshold for hiding
          lineColor: "white",
          lineWidth: "2px",
          fontWidth: "11px",
@@ -294,6 +296,7 @@ function RadarChart() {
                     .attr("dy", "0.35em")
                     .attr("x", function(d, i, j) { return calcX(null, options.circles.labelFactor, j); })
                     .attr("y", function(d, i, j) { return calcY(null, options.circles.labelFactor, j); })
+                    .style('opacity', function(d, i) { return options.axes.display ? 1 : 0})
                     .on('mouseover', function(d, i, j) { if (events.axisLegend.mouseover) events.axisLegend.mouseover(d, i, j); })
                     .on('mouseout', function(d, i, j) { if (events.axisLegend.mouseout) events.axisLegend.mouseout(d, i, j); })
                     .call(wrap, options.axes.wrapWidth)
@@ -305,6 +308,9 @@ function RadarChart() {
 
                 update_axis_legends
                     .transition().duration(duration)
+                    .style('opacity', function(d, i) { 
+                       return options.axes.display && radial_calcs.radius > options.axes.threshold ? 1 : 0
+                    })
                     .attr("x", function(d, i, j) { return calcX(null, options.circles.labelFactor, j); })
                     .attr("y", function(d, i, j) { return calcY(null, options.circles.labelFactor, j); })
                     .selectAll('tspan')
@@ -570,7 +576,7 @@ function RadarChart() {
       radial_calcs = {
          // Radius of the outermost circle
          radius: Math.min((options.width - (options.margins.left + options.margins.right)) / 2, 
-                          (options.height - (options.margins.bottom + options.margins.top)) /2),
+                          (options.height - (options.margins.bottom + options.margins.top)) / 2),
          axes: axes,
          axisLabels: axisLabels,
 
@@ -579,6 +585,7 @@ function RadarChart() {
             return d3.max(i.values.map( function(o) { return o.value; })) 
          }))
       }
+      radial_calcs.radius = Math.max(radial_calcs.radius, options.minRadius);
       radial_calcs.total = radial_calcs.axes.length;
 
       // The width in radians of each "slice"
@@ -958,6 +965,8 @@ function RadarChart() {
 
    function tooltip_show(d, i, self) {
          if (legend_toggles[d._i]) return;
+         var labels = getAxisLabels(_data);
+         chart_node.select('[key="'+d.axis+'"]').select('text').style('opacity', 1);
          var value = d.original_value ? d.original_value : Format(d.value);
          newX =  parseFloat(d3.select(self).attr('cx')) - 10;
          newY =  parseFloat(d3.select(self).attr('cy')) - 10;
@@ -970,7 +979,9 @@ function RadarChart() {
           .style('opacity', 1);
    }
 
-   function tooltip_hide() {
+   function tooltip_hide(d, i, self) {
+         chart_node.select('[key="'+d.axis+'"]').select('text')
+             .style('opacity', options.axes.display && radial_calcs.radius > options.axes.threshold ? 1 : 0);
          tooltip
           .transition().duration(200)
           .style("opacity", 0);
