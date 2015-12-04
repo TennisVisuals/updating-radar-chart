@@ -108,7 +108,7 @@ function RadarChart() {
 
    // programmatic
    var _data = [];
-   legend_toggles = [];
+   var legend_toggles = [];
    var radial_calcs = {};
    var Format = d3.format('%'); // Percentage formatting
    var transition_time = 0;
