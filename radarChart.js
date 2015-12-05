@@ -1050,16 +1050,14 @@ function RadarChart() {
    window.addEventListener( 'resize', scaleChart, false );
 
    function scaleChart() {
-      if (!options.resize) return;
+      if (!options.resize || !dom_parent) return;
       var width_offset = dom_parent.node().getBoundingClientRect().left;
       var height_offset = dom_parent.node().getBoundingClientRect().top;
-      if (matchRadar && typeof matchRadar.width === 'function') {
-         var width = Math.min(options.widthMax, document.documentElement.clientWidth - width_offset);
-         var height = Math.min(options.heightMax, document.documentElement.clientHeight - height_offset);
-         options.height = height;
-         options.width = width;
-         chart.update();
-      }
+      var width = Math.min(options.widthMax, document.documentElement.clientWidth - width_offset);
+      var height = Math.min(options.heightMax, document.documentElement.clientHeight - height_offset);
+      options.height = height;
+      options.width = width;
+      chart.update();
    }
 
    return chart;
