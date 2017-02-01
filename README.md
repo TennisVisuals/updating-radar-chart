@@ -4,7 +4,7 @@
 
 ### Coding philosophy inspired by [Rob Moore](http://www.toptal.com/d3-js/towards-reusable-d3-js-charts)
 
-#### [See this block in production with Live Data](http://tennisvisuals.com/examples/MatchRadar.html)
+#### [Live Example](http://bl.ocks.org/TennisVisuals/c591445c3e6773c6eb6f)
 
 #### [Find the Latest Code on GitHub](https://github.com/TennisVisuals/updating-radar-chart)
 
